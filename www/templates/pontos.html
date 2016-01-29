@@ -1,0 +1,39 @@
+	<ion-view view-title="Pontos">
+	  <ion-content>
+	    <ion-card>
+	  		<ion-card-content>
+	  				
+	  				<p class="container">
+				      Troque seus pontos por prêmios em nossos estacionamentos credenciados. Veja com quantos pontos você pode adquirir um serviço em cada estabelecimento.
+				    </p>
+				    <p class="center">Você possui:</p>
+				    <h1 class="card-title center_title">
+				      {{pontos}} <span class="peq"> pontos</span>
+				    </h1> 
+
+				    <div ng-repeat="estacionamento in estacionamentos">
+				    	<div class="list card">
+				    		<div class="item item-divider">
+				    			<h2>{{estacionamento.nome}}</h2>
+							    <p>{{estacionamento.endereco}}</p>
+							    
+							</div>
+							<div class="item item-icon-left">
+								<p>
+									<div style="width: 60%; float: left;">
+										<b>{{estacionamento.pontos}}</b> pts: {{estacionamento.promocao}}	
+									</div>
+									<a ng-click="obterPromocao(estacionamento)">
+										<i class="ion-android-checkmark-circle" style="padding-left: 35%;"></i>
+									</a>
+								</p>
+							</div>
+				    	</div>
+				    </div>
+
+			    
+			    
+	  		</ion-card-content>
+		</ion-card>
+	  </ion-content>
+	</ion-view>
