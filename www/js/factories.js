@@ -200,6 +200,10 @@ angular.module('starter.factories', ['ionic', 'ngCordova', 'restangular'])
 					google.maps.event.addListener(marker, 'click', function () {
 					    infoWindow.open(myMap, marker);
 					});
+				},
+
+				limparTd: function(){
+
 				}
 	}
 })

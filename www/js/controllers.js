@@ -39,7 +39,7 @@
 		  
 		})
 
-		.controller('EstacionamentosCtrl', function($scope, $rootScope, $ionicPopup, Restangular) {
+		.controller('EstacionamentosCtrl', function($scope, $rootScope, $ionicPopup, $cordovaGeolocation, $state, Restangular, MarkerService) {
 			$scope.$on('$ionicView.enter', function(){
 				$scope.estacionamentos = [{'nome':'Estacionamento1', 'endereco':'Rua atlântida, 67', 'promocao': 'Pernoite de graça', 'preco':{'hora': 'R$ 9,00/h', 'fracao': 'R$ 2,00/15min'}},
 										  {'nome':'Estacionamento2', 'endereco':'Rua atlântida, 60', 'promocao': '2h de graça', 'preco':{'hora': 'R$ 9,00/h', 'fracao': 'R$ 2,00/15min'}},
@@ -54,7 +54,39 @@
 				});
 
 				$scope.navegarEstacionamento = function(endereco){
-					
+					MarkerService.limparTd();
+
+					$cordovaGeolocation.getCurrentPosition(posOptions).then(function (position) 
+					{
+						var directionsService = new google.maps.DirectionsService;
+  						var directionsDisplay = new google.maps.DirectionsRenderer;
+  						directionsDisplay.setMap($rootScope.map);
+
+						directionsService.route({
+						    origin: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
+						    destination: new google.maps.LatLng(endereco.latitude, endereco.longitude),
+						    travelMode: google.maps.TravelMode.DRIVING,
+						    unitSystem: UnitSystem.METRIC
+						  }, function(response, status) {
+						    if (status === google.maps.DirectionsStatus.OK) {
+						      directionsDisplay.setDirections(response);
+						    } else {
+						      var alertPopup = $ionicPopup.alert({
+									title: 'Erro ao definir rota',
+									template: 'Não conseguimos definit a rota para o estacionamento :('
+							  });
+							  console.log(status);
+						    }
+						  });
+						position.coords.latitude
+					}, function(err) {
+							var alertPopup = $ionicPopup.alert({
+									title: 'Erro ao definir rota',
+									template: 'Não conseguimos definit a rota para o estacionamento :('
+							});
+							console.log(err);
+					});
+					$state.go('mapa');
 				};
 
 				$scope.buscarEstacionamentos = function() {
@@ -333,12 +365,20 @@
 							mapTypeId: google.maps.MapTypeId.ROADMAP
 						};          
 						 
-						var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+						var map;
+						if($rootScope.map != null) {
+							map = $rootScope.map;
+						}
+						else {
+							map = new google.maps.Map(document.getElementById("map"), mapOptions);	
+						}
+						
 						map.addListener('idle', function(){
 						    carregarVagasEstacionamentos();      
 						});
 
 						$scope.map = map;
+						$rootScope.map = map;
 						var myPosition = MarkerService.adicionarMarker(myLatlng, '/img/car3.png', map);
 						$scope.myPosition = myPosition;  
 						$ionicLoading.hide();  
