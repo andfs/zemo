@@ -4,7 +4,7 @@ Falta fazer:<br/>
 <h2>Lado cliente</h2>
 <ul>
 <li>Criar pagina tarifa atual</li>
-<li>Retirar mocks</li>
+<li>~~ Retirar mocks ~~</li>
 <li>implementar navegação no maps</li>
 <li>implementar meus vouchers</li>
 </ul>
