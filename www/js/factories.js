@@ -180,6 +180,7 @@ angular.module('starter.factories', ['ionic', 'ngCordova', 'restangular'])
 })
 
 .factory('MarkerService', function(){
+	var marcas = [];
 	return {
 				adicionarMarker: function(latlng, icone, myMap) {
 					var marker = new google.maps.Marker({
@@ -188,7 +189,7 @@ angular.module('starter.factories', ['ionic', 'ngCordova', 'restangular'])
 						icon: icone,
 						position: latlng
 					});
-					
+					marcas.push(marker);
 					return marker;
 				},
 				
@@ -203,11 +204,13 @@ angular.module('starter.factories', ['ionic', 'ngCordova', 'restangular'])
 				},
 
 				limparTd: function(){
+					for (var i = 0; i < marcas.length; i++) {
+						marcas[i].setMap(null);
+					}
 
 				}
 	}
 })
-
 .factory('VagaService', function($ionicPopup, $ionicActionSheet, $q, $ionicTabsDelegate, Restangular, LOCAL_TOKEN_KEY){
 	return {
 	

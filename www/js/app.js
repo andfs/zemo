@@ -64,6 +64,16 @@ angular.module('starter', ['ionic', 'starter.controllers'])
       }
     })
 
+    .state('app.tarifaAtual', {
+      url: '/tarifaAtual',
+      views: {
+        'menuContent': {
+          templateUrl: 'templates/tarifaAtual.html',
+          controller:  'TarifaAtualCtrl'
+        }
+      }
+    })
+
   .state('app.estacionamentos', {
     url: '/estacionamentos',
     views: {

@@ -1,0 +1,24 @@
+	<ion-view view-title="Tarifa Atual">
+	  <ion-content>
+	    <ion-card>
+	  		<ion-card-content>
+		    	<div class="list card">
+		    		<div class="item item-divider">
+		    			<h2>{{carroEstacionado.tempo}}</h2>
+					    
+					</div>
+					<div class="item item-icon-left">
+						<p>
+							<div style="width: 60%; float: left;">
+								<b>{{carroEstacionado.tarifa}}</b>
+							</div>
+							<a ng-click="pagar(carroEstacionado)">
+								<i class="ion-card" style="padding-left: 35%;"></i>
+							</a>
+						</p>
+					</div>
+		    	</div>
+	  		</ion-card-content>
+		</ion-card>
+	  </ion-content>
+	</ion-view>

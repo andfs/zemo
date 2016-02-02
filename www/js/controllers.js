@@ -39,22 +39,58 @@
 		  
 		})
 
+		.controller('TarifaAtualCtrl', function($scope, $state, $ionicPopup, Restangular) {
+		  $scope.$on('$ionicView.enter', function(){
+		  	$scope.carroEstacionado = {'tempo': '1h:15min', 'tarifa':'R$12,00', 'tarifaFechada': true};
+		  	$scope.tarifaFechada = false;
+		  	$scope.pagar = function(carroEstacionado) {
+		  		Restangular.all("estacionamentos").post(carroEstacionado.id).then(function(response){
+		  			if(response.status == 'ok')
+		  			{
+		  				var alertPopup = $ionicPopup.alert({
+							title: 'Estacionamento pago!',
+							template: 'O estacionamento foi pago com sucesso. O código de conferência é: ' + response.codigo + ''
+						});	
+		  			}
+		  			else
+		  			{
+		  				var alertPopup = $ionicPopup.alert({
+							title: 'Estacionamento ainda em aberto',
+							template: 'Quando retirar o carro, o estacionamento dará baixa no sistema e você poderá efetuar o pagamento'
+						});
+		  			}
+		  			
+		  		}, function(err) {
+		  			var alertPopup = $ionicPopup.alert({
+						title: 'Erro ao efetuar pagamento',
+						template: 'Não conseguimos efetuar o pagamento :('
+					});
+		  		});
+		  	};
+
+		  });
+		  
+		})
+
 		.controller('EstacionamentosCtrl', function($scope, $rootScope, $ionicPopup, $cordovaGeolocation, $state, Restangular, MarkerService) {
 			$scope.$on('$ionicView.enter', function(){
-				$scope.estacionamentos = [{'nome':'Estacionamento1', 'endereco':'Rua atlântida, 67', 'promocao': 'Pernoite de graça', 'preco':{'hora': 'R$ 9,00/h', 'fracao': 'R$ 2,00/15min'}},
-										  {'nome':'Estacionamento2', 'endereco':'Rua atlântida, 60', 'promocao': '2h de graça', 'preco':{'hora': 'R$ 9,00/h', 'fracao': 'R$ 2,00/15min'}},
-										  {'nome':'Estacionamento3', 'endereco':'Rua atlântida, 64', 'promocao': 'Pernoite de graça', 'preco':{'hora': 'R$ 9,00/h', 'fracao': 'R$ 2,00/15min'}}];
+				
 				Restangular.all("estacionamentos").getList({latitude: $rootScope.currentPosition.latitude, 
 													       longitude: $rootScope.currentPosition.longitude})
 				   .then(function(response) {
-						$scope.buscarEstacionamentos();				
+						$scope.estacionamentos = response;				
 					},
 					function(err) {
 						$scope.pontos = 'Erro ao buscar os estacionamentos :(';
 				});
 
 				$scope.navegarEstacionamento = function(endereco){
-					MarkerService.limparTd();
+
+					var posOptions = {
+							enableHighAccuracy: true,
+							timeout: 20000,
+							maximumAge: 0
+					};
 
 					$cordovaGeolocation.getCurrentPosition(posOptions).then(function (position) 
 					{
@@ -66,35 +102,27 @@
 						    origin: new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
 						    destination: new google.maps.LatLng(endereco.latitude, endereco.longitude),
 						    travelMode: google.maps.TravelMode.DRIVING,
-						    unitSystem: UnitSystem.METRIC
+						    
 						  }, function(response, status) {
 						    if (status === google.maps.DirectionsStatus.OK) {
 						      directionsDisplay.setDirections(response);
 						    } else {
 						      var alertPopup = $ionicPopup.alert({
 									title: 'Erro ao definir rota',
-									template: 'Não conseguimos definit a rota para o estacionamento :('
+									template: 'Não conseguimos definir a rota para o estacionamento :('
 							  });
 							  console.log(status);
 						    }
 						  });
-						position.coords.latitude
 					}, function(err) {
 							var alertPopup = $ionicPopup.alert({
 									title: 'Erro ao definir rota',
-									template: 'Não conseguimos definit a rota para o estacionamento :('
+									template: 'Não conseguimos definir a rota para o estacionamento :('
 							});
 							console.log(err);
 					});
-					$state.go('mapa');
-				};
-
-				$scope.buscarEstacionamentos = function() {
-					$scope.estacionamentos = [{'nome':'Estacionamento1', 'endereco':'Rua atlântida, 67', 'promocao': 'Pernoite de graça', 'preco':{'hora': 'R$ 9,00/h', 'fracao': 'R$ 2,00/15min'}},
-										  {'nome':'Estacionamento2', 'endereco':'Rua atlântida, 60', 'promocao': '2h de graça', 'preco':{'hora': 'R$ 9,00/h', 'fracao': 'R$ 2,00/15min'}},
-										  {'nome':'Estacionamento3', 'endereco':'Rua atlântida, 64', 'promocao': 'Pernoite de graça', 'preco':{'hora': 'R$ 9,00/h', 'fracao': 'R$ 2,00/15min'}}];
-				};
-				 
+					$state.go('app.mapa');
+				};			 
 			});
 		})
 		.controller('PontosCtrl', function($scope, $ionicPopup, Restangular) {
@@ -121,9 +149,14 @@
 				};
 
 				$scope.buscarEstacionamentosPromocao = function() {
-					$scope.estacionamentos = [{'nome':'Estacionamento1', 'endereco':'Rua atlântida, 67', 'promocao': 'Pernoite de graça', 'pontos':'80'},
-										  {'nome':'Estacionamento2', 'endereco':'Rua atlântida, 60', 'promocao': '2h de graça', 'pontos':'70'},
-										  {'nome':'Estacionamento3', 'endereco':'Rua atlântida, 64', 'promocao': 'Pernoite de graça', 'pontos':'80'}];
+					Restangular.all("estacionamentos").customGET('promocao', {latitude: $rootScope.currentPosition.latitude, 
+													       longitude: $rootScope.currentPosition.longitude})
+				   .then(function(response) {
+						$scope.estacionamentos = response;				
+					},
+					function(err) {
+						$scope.pontos = 'Erro ao buscar os estacionamentos :(';
+				});
 				};
 				 
 			});
@@ -210,6 +243,8 @@
 		 
 				script.src = 'http://maps.google.com/maps/api/js?sensor=true&callback=mapInit';
 				document.body.appendChild(script);
+
+
 			};
 
 			function getBoundingRadius(center, bounds){
