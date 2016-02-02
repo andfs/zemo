@@ -74,6 +74,16 @@ angular.module('starter', ['ionic', 'starter.controllers'])
       }
     })
 
+    .state('app.vouchers', {
+      url: '/vouchers',
+      views: {
+        'menuContent': {
+          templateUrl: 'templates/vouchers.html',
+          controller:  'VouchersCtrl'
+        }
+      }
+    })
+
   .state('app.estacionamentos', {
     url: '/estacionamentos',
     views: {

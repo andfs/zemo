@@ -41,8 +41,15 @@
 
 		.controller('TarifaAtualCtrl', function($scope, $state, $ionicPopup, Restangular) {
 		  $scope.$on('$ionicView.enter', function(){
-		  	$scope.carroEstacionado = {'tempo': '1h:15min', 'tarifa':'R$12,00', 'tarifaFechada': true};
-		  	$scope.tarifaFechada = false;
+		  	Restangular.all("pontos").customGET('pt').then(function(response) {
+				$scope.carroEstacionado = response;
+			},
+			function(err) {
+				var alertPopup = $ionicPopup.alert({
+					title: 'Erro ao buscar informações',
+					template: 'Não conseguimos buscar as informações :('
+				});
+			});
 		  	$scope.pagar = function(carroEstacionado) {
 		  		Restangular.all("estacionamentos").post(carroEstacionado.id).then(function(response){
 		  			if(response.status == 'ok')
@@ -67,9 +74,36 @@
 					});
 		  		});
 		  	};
-
 		  });
-		  
+		})
+
+		.controller('VouchersCtrl', function($scope, $state, $ionicPopup, Restangular) {
+		  $scope.$on('$ionicView.enter', function(){
+
+		  	Restangular.all("pontos").customGET('pt').then(function(response) {
+				$scope.vouchers = response;
+			},
+			function(err) {
+				var alertPopup = $ionicPopup.alert({
+					title: 'Erro ao buscar vouchers',
+					template: 'Não conseguimos buscar seus vouchers :('
+				});
+			});
+		  	
+		  	$scope.obterPromocao = function(voucher) {
+		  		Restangular.all("estacionamentos").post(voucher.id).then(function(response){
+	  				var alertPopup = $ionicPopup.alert({
+						title: 'Voucher usado!',
+						template: 'Seu código é: ' + response.codigo + ''
+					});	
+		  		}, function(err) {
+		  			var alertPopup = $ionicPopup.alert({
+						title: 'Erro ao usar voucher',
+						template: 'Não conseguimos processar o uso de seu voucher :('
+					});
+		  		});
+		  	};
+		  });
 		})
 
 		.controller('EstacionamentosCtrl', function($scope, $rootScope, $ionicPopup, $cordovaGeolocation, $state, Restangular, MarkerService) {

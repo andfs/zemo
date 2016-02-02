@@ -1,0 +1,31 @@
+	<ion-view view-title="Pontos">
+	  <ion-content>
+	    <ion-card>
+	  		<ion-card-content>
+  				<p class="container">
+			      Clique no código de barras para gerar o código, e apresente-o no estabelecimento para recuperar seu brinde. Caso o voucher seja para um estacionamento, ele será automaticamente usado no momento do pagamento.
+			    </p>
+
+			    <div ng-repeat="voucher in vouchers">
+			    	<div class="list card">
+			    		<div class="item item-divider">
+			    			<h2>{{voucher.numero}}</h2>
+						    <p>{{voucher.estacionamento}}</p>
+						    
+						</div>
+						<div class="item item-icon-left">
+							<p>
+								<div style="width: 60%; float: left;">
+									{{voucher.promocao}}	
+								</div>
+								<a ng-click="obterPromocao(voucher)">
+									<i class="ion-ios-barcode-outline" style="padding-left: 35%;"></i>
+								</a>
+							</p>
+						</div>
+			    	</div>
+			    </div>
+	  		</ion-card-content>
+		</ion-card>
+	  </ion-content>
+	</ion-view>
