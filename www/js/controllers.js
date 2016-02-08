@@ -12,6 +12,7 @@
 				}
 			});
 			$rootScope.markerCache = [];
+			$rootScope.positionCache = [];
 		})
 
 		.controller('AppCtrl', function($scope, $state, $ionicModal, $ionicPopup, $timeout, $ionicHistory, LoginService, AUTH_EVENTS) {
@@ -363,22 +364,33 @@
 			        "boundingRadius": boundingRadius
 			    };
 
+			    var contains = function(vagaLatlng) {
+					for (var i = 0; i < $rootScope.positionCache.length; i++) {
+						if($rootScope.positionCache[i].lat() == vagaLatlng.lat() && $rootScope.positionCache[i].lng() == vagaLatlng.lng()) {
+							return true;
+						}
+					};
+					return false;
+				}
+
 			    VagaService.buscarVagas(params).then(function(vagas){
 
 			    	for (var i = 0; i < vagas.length; i++) 
 			    	{
 			    		var vagaLatlng = new google.maps.LatLng(vagas[i].latitude, vagas[i].longitude);
 			    		var vagaPosition;
-						if(!vagas[i].isExcluir)
+
+						if(!vagas[i].isExcluir && !contains($rootScope.positionCache, vagaLatlng))
 						{
 							if(vagas[i].isVaga) {
-			    				vagaPosition = MarkerService.adicionarMarker(vagaLatlng, getIcone(vagas[i].tipoVaga.name), map);
+			    				vagaPosition = MarkerService.adicionarMarker(vagaLatlng, getIcone(vagas[i].tipoVaga), $scope.map);
 
 				    		} else {
-				    			vagaPosition = MarkerService.adicionarMarker(vagaLatlng, '/img/parking.png', map);
+				    			vagaPosition = MarkerService.adicionarMarker(vagaLatlng, '/img/parking.png', $scope.map);
 				    		}
-				    		MarkerService.adicionarinformacaoMarker(vagas[i].info, $scope.map);
+				    		MarkerService.adicionarInformacaoMarker(vagas[i].info, $scope.map, vagaPosition);
 				    		$rootScope.markerCache.push(vagaPosition);
+				    		$rootScope.positionCache.push(vagaLatlng);
 						}
 						else
 						{
@@ -395,7 +407,7 @@
 								}
 							}
 						}
-					}		
+					}
 			    }, 
 			    function(err) {
 			    	$ionicLoading.hide();

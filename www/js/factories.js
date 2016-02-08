@@ -193,7 +193,7 @@ angular.module('starter.factories', ['ionic', 'ngCordova', 'restangular'])
 					return marker;
 				},
 				
-				adicionarInformacaoMarker: function(info, myMap) {
+				adicionarInformacaoMarker: function(info, myMap, marker) {
 					var infoWindow = new google.maps.InfoWindow({
 						content: info
 					});
