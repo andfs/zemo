@@ -81,7 +81,7 @@
 		.controller('VouchersCtrl', function($scope, $state, $ionicPopup, Restangular) {
 		  $scope.$on('$ionicView.enter', function(){
 
-		  	Restangular.all("pontos").customGET('pt').then(function(response) {
+		  	Restangular.all("vouchers").customGET('pt').then(function(response) {
 				$scope.vouchers = response;
 			},
 			function(err) {
@@ -91,8 +91,8 @@
 				});
 			});
 		  	
-		  	$scope.obterPromocao = function(voucher) {
-		  		Restangular.all("estacionamentos").post(voucher.id).then(function(response){
+		  	$scope.obterPromocao = function(estacionamento) {
+		  		Restangular.all("vouchers").post(estacionamento.id).then(function(response){
 	  				var alertPopup = $ionicPopup.alert({
 						title: 'Voucher usado!',
 						template: 'Seu código é: ' + response.codigo + ''
@@ -110,9 +110,7 @@
 		.controller('EstacionamentosCtrl', function($scope, $rootScope, $ionicPopup, $cordovaGeolocation, $state, Restangular, MarkerService) {
 			$scope.$on('$ionicView.enter', function(){
 				
-				Restangular.all("estacionamentos").getList({latitude: $rootScope.currentPosition.latitude, 
-													       longitude: $rootScope.currentPosition.longitude})
-				   .then(function(response) {
+				Restangular.all("estacionamentos").getList({position: $rootScope.currentPosition}).then(function(response) {
 						$scope.estacionamentos = response;				
 					},
 					function(err) {
@@ -282,40 +280,6 @@
 
 			};
 
-			function getBoundingRadius(center, bounds){
-			    return getDistanceBetweenPoints(center, bounds.northeast, 'km');    
-			}
-			 
-			function getDistanceBetweenPoints(pos1, pos2, units){
-			 
-			    var earthRadius = {
-			        miles: 3958.8,
-			        km: 6371
-			    };
-			 
-			    var R = earthRadius[units || 'miles'];
-			    var lat1 = pos1.lat;
-			    var lon1 = pos1.lng;
-			    var lat2 = pos2.lat;
-			    var lon2 = pos2.lng;
-			 
-			    var dLat = toRad((lat2 - lat1));
-			    var dLon = toRad((lon2 - lon1));
-			    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-			    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-			    Math.sin(dLon / 2) *
-			    Math.sin(dLon / 2);
-			    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-			    var d = R * c;
-			 
-			    return d;
-			 
-			}
-			 
-			function toRad(x){
-			    return x * Math.PI / 180;
-			}
-
 			function getIcone(tipoVaga) {
 				if(tipoVaga == 'LIVRE') {
 					return '/img/livre.png';
@@ -335,14 +299,7 @@
 			}
 
 			var carregarVagasEstacionamentos = function() {
-				var center = $scope.map.getCenter();
       			var bounds = $scope.map.getBounds();
-      			var zoom   = $scope.map.getZoom();
-
-      			var centerNorm = {
-			        lat: center.lat(),
-			        lng: center.lng()
-			    };
 
 			    var boundsNorm = {
 			        northeast: {
@@ -355,13 +312,8 @@
 			        }
 			    };
 
-			    var boundingRadius = getBoundingRadius(centerNorm, boundsNorm);
-
 			    var params = {
-			        "centre": centerNorm,
 			        "bounds": boundsNorm,
-			        "zoom": zoom,
-			        "boundingRadius": boundingRadius
 			    };
 
 			    var contains = function(vagaLatlng) {
@@ -479,6 +431,7 @@
 						var long = position.coords.longitude;
 						myLatlng = new google.maps.LatLng(lat, long);
 						$scope.myPosition.setPosition(myLatlng);
+						$rootScope.currentPosition = {latitude: lat, longitude: long};
 						carregarVagasEstacionamentos();
 					}, 
 					function(err) {
